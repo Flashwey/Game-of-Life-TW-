@@ -1,0 +1,183 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+namespace code
+{
+    class A
+    {
+          
+
+    }
+    class Program
+    {
+
+        static int i = 1;//定义全局变量i记录细胞的个数
+        static string[,] a = new string[12, 12];//创建10*10的二维表a
+        static string[,] b = new string[12, 12];//创建10*10的二维表b
+        static void Init() //初始化函数：令画布中所有细胞死亡，死亡为字符“-”
+        {
+            for (int x = 0; x < 12; x++)
+            {
+                for (int y = 0; y < 12; y++)
+                {
+                    a[x,y] = "-";
+                    b[x, y] = "-";
+                }
+            }
+        }
+
+
+
+        //函数：直接输出二维数组（用作测试）
+        static void printArr()
+        {
+
+            
+            for (int countx = 0; countx < 12;countx++ )
+            {
+              
+                Console.Write("\t\t\t\t");
+                for (int county = 0; county < 12; county++)
+                {
+                    Console.Write(a[countx,county]);
+                    Console.Write("  ");
+                }
+                Console.WriteLine();
+                
+            }
+            
+            
+        }
+
+        //------------------------------------------------------------------------------------------------------逻辑--
+        //**计数**计算周围8个细胞的存活状态有多少个
+        static int function(int countx,int county)
+        {
+            int cellCount = 0;
+            for (int indexx = countx - 1; indexx <=countx + 1; indexx++)
+            {
+                for (int indexy = county - 1; indexy <= county + 1; indexy++)
+                {
+                    if (a[indexx, indexy] == "x")
+                    {
+                        cellCount++;
+                    }
+                   
+                }
+            }
+            if (a[countx,county]=="x")
+            {
+                cellCount--;
+            }
+            return cellCount;
+        }
+        //**Dead**-对死亡细胞周围进行判定a[countx,county]状态是否改变
+        static void function0(int countx,int county)
+        {
+            int cellCount;
+            cellCount = function(countx, county);
+            if (cellCount==3)
+            {
+                b[countx, county] = "x";//如果周围存在3个活细胞，则激活 "-" --> "x"
+            }
+        }
+        //**Live**-对存活细胞周围进行判定细胞状态判断函数
+        static void function1(int countx, int county)
+        {
+            int cellCount;
+            cellCount=function(countx,county);
+            if (cellCount <= 1||(cellCount>3 &&cellCount<9))//如果周围少于2个/多于3个细胞存活，ok，他死了
+            {
+                b[countx, county] = "-";//先用数组b来存储
+            }
+            else if (cellCount == 2|| cellCount==3)
+            {
+                b[countx, county] = "x";////先用数组b来存储
+            }
+            
+        }
+        //------------------------------------------------------------------------------------------------------------逻辑--      
+        //print函数：通过判断细胞数量来输出二维数组
+        static void printArrThoughCount()
+        {
+            for (int countx = 1; countx < 11; countx++)//遍历
+            {
+
+                for (int county = 1; county < 11; county++)
+                {
+                    switch (a[countx, county])//判断细胞的存活状态
+                    {
+                        case "-":
+                            function0(countx,county);//细胞存活状态的判断函数
+                            break;
+                        case "x":
+                            function1(countx,county);//细胞消亡状态的判断函数
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                Console.WriteLine();
+            }
+            //把数组b的值赋值给a
+            for (int m = 0; m < 12; m++)
+            {
+                for (int n = 0; n < 12; n++)
+                {
+                    a[m, n] = b[m, n];
+                }
+            }
+            printArr();
+
+        }
+        //----------------------------------------------------------------------------------坐标的输入函数
+        static void WL()
+        {
+            Console.WriteLine("输入第" + i + "个细胞的x坐标，回车后输入Y坐标");
+            int x1, y1;
+            x1 = int.Parse(Console.ReadLine().ToString());
+            y1 = int.Parse(Console.ReadLine().ToString());
+            a[x1, y1] = "x";
+            i++;
+        }
+
+        //--------------------------------------------------------------------------------------------主函数
+
+
+        
+
+        static void Main(string[] args) 
+        {
+            Init();//初始化
+
+            //手动定位坐标，激活该点细胞，激活细胞点不少于3个
+            for (int j = 0; j < 3; j++)
+            {
+                WL();//不少于三个的坐标输入
+            }
+            Console.WriteLine("是否继续添加下一个细胞坐标？[y/n]");
+            while (Console.ReadLine().ToString() == "y")
+            {
+                WL();
+                Console.WriteLine("是否继续添加下一个细胞坐标？[y/n]");
+                if (i > 15)
+                    break;//当输入的坐标超出15个时，停止手动定位，跳出判断
+            }
+            Console.WriteLine("请输入想要重复的次数(数字)：");
+            int num = int.Parse(Console.ReadLine());
+            printArr();//输入坐标初始化后
+            for (int n = 0; n < num; n++)
+            {
+               
+                Thread.Sleep(1000); 
+                Console.Clear();
+                
+                printArrThoughCount();//输出判断后的全画布细胞状态
+            }
+           
+            Console.ReadLine();
+        }
+    }
+}
